@@ -4,6 +4,18 @@
 
 每看屏幕 20 分钟，看向 6 米外休息 20 秒。应用待在菜单栏 / 系统托盘里，到点会弹出深色全屏遮罩，提醒你放松眼睛。
 
+## 界面预览
+
+<p align="center">
+  <img src="screenshots/main.png" width="260" alt="主界面" />
+  &nbsp;&nbsp;
+  <img src="screenshots/break.png" width="280" alt="休息界面" />
+  &nbsp;&nbsp;
+  <img src="screenshots/menu.png" width="120" alt="菜单界面" />
+</p>
+
+<p align="center">主界面 · 休息界面 · 菜单界面</p>
+
 ## 功能
 
 - 菜单栏倒计时（每秒更新）
