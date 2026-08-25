@@ -5,21 +5,38 @@ declare global {
   interface Window { eyeApi: any }
 }
 
+type ThemeId = 'light' | 'dark' | 'warm'
+
+const THEMES: { id: ThemeId; label: string }[] = [
+  { id: 'light', label: '浅色' },
+  { id: 'dark', label: '深色' },
+  { id: 'warm', label: '暖色' }
+]
+
+const defaultConfig = {
+  workMinutes: 20,
+  breakSeconds: 20,
+  allDay: true,
+  scheduleStart: '09:00',
+  scheduleEnd: '18:00',
+  meals: [
+    { enabled: true, start: '12:00', end: '13:00' },
+    { enabled: false, start: '18:00', end: '19:00' }
+  ],
+  sound: true,
+  panelTheme: 'light' as ThemeId,
+  overlayTheme: 'dark' as ThemeId
+}
+
+function applyPanelTheme(theme: ThemeId) {
+  document.documentElement.setAttribute('data-panel', theme || 'light')
+}
+
 const App = {
   data() {
     return {
-      config: {
-        workMinutes: 20,
-        breakSeconds: 20,
-        allDay: true,
-        scheduleStart: '09:00',
-        scheduleEnd: '18:00',
-        meals: [
-          { enabled: true, start: '12:00', end: '13:00' },
-          { enabled: false, start: '18:00', end: '19:00' }
-        ],
-        sound: true
-      },
+      config: { ...defaultConfig, meals: defaultConfig.meals.map(m => ({ ...m })) },
+      themes: THEMES,
       state: { state: 'idle', remaining: 0, paused: false },
       toast: '',
       now: new Date(),
@@ -43,8 +60,17 @@ const App = {
     }
   },
   async mounted() {
+    applyPanelTheme(this.config.panelTheme)
     if (!window.eyeApi) return
-    this.config = await window.eyeApi.getConfig()
+    const saved = await window.eyeApi.getConfig()
+    this.config = {
+      ...defaultConfig,
+      ...saved,
+      meals: Array.isArray(saved?.meals) && saved.meals.length
+        ? saved.meals
+        : defaultConfig.meals.map(m => ({ ...m }))
+    }
+    applyPanelTheme(this.config.panelTheme)
     this.state = await window.eyeApi.getState()
     this.localRemaining = this.state.remaining
 
@@ -53,7 +79,6 @@ const App = {
       this.localRemaining = s.remaining
     })
 
-    // 本地每秒递减，界面显示更平滑（权威值仍由主进程每5s同步）
     this.tickTimer = window.setInterval(() => {
       this.now = new Date()
       if (this.state.state === 'working' && !this.state.paused && this.localRemaining > 0) {
@@ -66,11 +91,17 @@ const App = {
   },
   methods: {
     async save() {
-      // 简单校验
       this.config.workMinutes = Math.min(120, Math.max(1, Number(this.config.workMinutes) || 20))
       this.config.breakSeconds = Math.min(600, Math.max(5, Number(this.config.breakSeconds) || 20))
       await window.eyeApi.saveConfig(JSON.parse(JSON.stringify(this.config)))
       this.showToast('✓ 已保存')
+    },
+    setPanelTheme(id: ThemeId) {
+      this.config.panelTheme = id
+      applyPanelTheme(id)
+    },
+    setOverlayTheme(id: ThemeId) {
+      this.config.overlayTheme = id
     },
     togglePause() {
       window.eyeApi.togglePause()
@@ -149,14 +180,46 @@ const App = {
     </div>
 
     <div class="section">
+      <div class="section-title">主题颜色</div>
+      <div class="row">
+        <span class="row-label">设置面板</span>
+        <div class="theme-picks">
+          <button
+            v-for="t in themes"
+            :key="'panel-' + t.id"
+            type="button"
+            class="theme-chip"
+            :class="['theme-chip--' + t.id, { on: config.panelTheme === t.id }]"
+            @click="setPanelTheme(t.id)"
+          >{{ t.label }}</button>
+        </div>
+      </div>
+      <div class="row">
+        <span class="row-label">全屏提示</span>
+        <div class="theme-picks">
+          <button
+            v-for="t in themes"
+            :key="'overlay-' + t.id"
+            type="button"
+            class="theme-chip"
+            :class="['theme-chip--' + t.id, { on: config.overlayTheme === t.id }]"
+            @click="setOverlayTheme(t.id)"
+          >{{ t.label }}</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
       <div class="row">
         <span class="row-label">声音提醒</span>
         <div class="switch" :class="{ on: config.sound }" @click="toggle('sound')"></div>
       </div>
     </div>
 
-    <button class="save-btn" @click="save">保存设置</button>
-    <div class="toast">{{ toast }}</div>
+    <div class="save-area">
+      <div class="toast">{{ toast }}</div>
+      <button class="save-btn" @click="save">保存设置</button>
+    </div>
   </div>
   `
 }

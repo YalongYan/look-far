@@ -3,7 +3,7 @@ import * as path from 'path'
 import * as fs from 'fs'
 import Store from 'electron-store'
 import { Scheduler } from './scheduler'
-import { AppConfig, DEFAULT_CONFIG } from './config'
+import { AppConfig, DEFAULT_CONFIG, normalizeConfig, overlayWindowBg, panelWindowBg } from './config'
 import { createTrayIcon, createWindowsTrayIcon } from './icon'
 
 const isMac = process.platform === 'darwin'
@@ -12,6 +12,10 @@ const store = new Store<{ config: AppConfig }>({
   name: 'look-far',
   defaults: { config: DEFAULT_CONFIG }
 })
+
+function getConfig(): AppConfig {
+  return normalizeConfig(store.get('config'))
+}
 
 let tray: Tray | null = null
 let settingsWin: BrowserWindow | null = null
@@ -26,7 +30,7 @@ if (!gotLock) {
 app.whenReady().then(() => {
   if (isMac) app.dock.hide() // 纯菜单栏应用
 
-  scheduler = new Scheduler(store.get('config'))
+  scheduler = new Scheduler(getConfig())
 
   createTray()
   bindSchedulerEvents()
@@ -107,7 +111,7 @@ function bindSchedulerEvents() {
 /* ---------------- 声音 ---------------- */
 
 function playSound() {
-  const config = store.get('config')
+  const config = getConfig()
   if (!config.sound) return
   // 简单可靠方案：给系统通知音。后续可换自定义音频文件。
   try {
@@ -134,12 +138,12 @@ function openSettings() {
   }
   settingsWin = new BrowserWindow({
     width: 400,
-    height: 620,
+    height: 700,
     resizable: false,
     maximizable: false,
     fullscreenable: false,
     title: '远方',
-    backgroundColor: '#f7f8fa',
+    backgroundColor: panelWindowBg(getConfig().panelTheme),
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       contextIsolation: true,
@@ -158,7 +162,7 @@ function openSettings() {
 
 function openBreakWindows() {
   closeBreakWindows()
-  const config = store.get('config')
+  const config = getConfig()
   for (const display of screen.getAllDisplays()) {
     const { x, y, width, height } = display.bounds
     const win = new BrowserWindow({
@@ -170,7 +174,7 @@ function openBreakWindows() {
       movable: false,
       resizable: false,
       focusable: true,
-      backgroundColor: '#16171c',
+      backgroundColor: overlayWindowBg(config.overlayTheme),
       webPreferences: {
         preload: path.join(__dirname, 'preload.js'),
         contextIsolation: true,
@@ -182,7 +186,10 @@ function openBreakWindows() {
     win.loadFile(path.join(__dirname, '../renderer/break.html'))
     const sendBreakConfig = () => {
       if (win.isDestroyed()) return
-      win.webContents.send('break-config', { seconds: config.breakSeconds })
+      win.webContents.send('break-config', {
+        seconds: config.breakSeconds,
+        overlayTheme: config.overlayTheme
+      })
     }
     win.webContents.on('did-finish-load', sendBreakConfig)
     win.webContents.on('did-stop-loading', sendBreakConfig)
@@ -200,11 +207,15 @@ function closeBreakWindows() {
 /* ---------------- IPC ---------------- */
 
 function bindIpc() {
-  ipcMain.handle('get-config', () => store.get('config'))
+  ipcMain.handle('get-config', () => getConfig())
 
   ipcMain.handle('save-config', (_e, config: AppConfig) => {
-    store.set('config', config)
-    scheduler.updateConfig(config)
+    const next = normalizeConfig(config)
+    store.set('config', next)
+    scheduler.updateConfig(next)
+    if (settingsWin && !settingsWin.isDestroyed()) {
+      settingsWin.setBackgroundColor(panelWindowBg(next.panelTheme))
+    }
     return true
   })
 

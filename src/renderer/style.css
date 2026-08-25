@@ -1,19 +1,58 @@
-:root {
+:root,
+[data-panel="light"] {
   --bg: #f7f8fa;
   --card: #ffffff;
   --text: #333a45;
   --text-secondary: #8a94a6;
   --primary: #4285f4;
   --primary-light: #e8f0fe;
+  --primary-hover: #d7e6fd;
   --border: #e6e9ef;
+  --muted-bg: #f0f2f5;
+  --muted-hover: #e6e9ef;
+  --switch-off: #d5dae3;
+  --success: #34a853;
   --radius: 12px;
+}
+
+[data-panel="dark"] {
+  --bg: #1c1e24;
+  --card: #262a33;
+  --text: #e6e8ec;
+  --text-secondary: #8b919c;
+  --primary: #6ea8ff;
+  --primary-light: #2a3a54;
+  --primary-hover: #334868;
+  --border: #343a46;
+  --muted-bg: #323743;
+  --muted-hover: #3c4250;
+  --switch-off: #4a5160;
+  --success: #6dca7f;
+}
+
+[data-panel="warm"] {
+  --bg: #f6efe6;
+  --card: #fff8f0;
+  --text: #4a3f35;
+  --text-secondary: #9a8b7a;
+  --primary: #c47a3a;
+  --primary-light: #f3e4d4;
+  --primary-hover: #ead6c0;
+  --border: #ead9c4;
+  --muted-bg: #efe4d6;
+  --muted-hover: #e5d6c4;
+  --switch-off: #d9cbb8;
+  --success: #3d9a5c;
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
+html, body {
+  background: var(--bg);
+}
+
 body {
   font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
-  background: var(--bg);
   color: var(--text);
   font-size: 14px;
   -webkit-font-smoothing: antialiased;
@@ -22,6 +61,7 @@ body {
 
 .app {
   padding: 20px;
+  overflow-y: auto;
 }
 
 /* 顶部状态区 */
@@ -69,14 +109,14 @@ body {
   color: var(--primary);
   margin-right: 10px;
 }
-.pause-btn:hover { background: #d7e6fd; }
+.pause-btn:hover { background: var(--primary-hover); }
 .pause-btn.paused { background: #fde8e8; color: #e0453a; }
 
 .reset-btn {
-  background: #f0f2f5;
+  background: var(--muted-bg);
   color: var(--text-secondary);
 }
-.reset-btn:hover { background: #e6e9ef; color: var(--text); }
+.reset-btn:hover { background: var(--muted-hover); color: var(--text); }
 
 /* 设置分组 */
 .section {
@@ -132,6 +172,7 @@ body {
   outline: none;
 }
 .time-input:focus { border-color: var(--primary); }
+.time-input:disabled { opacity: 0.5; }
 
 .range-sep { color: var(--text-secondary); margin: 0 6px; }
 
@@ -140,7 +181,7 @@ body {
   position: relative;
   width: 40px;
   height: 22px;
-  background: #d5dae3;
+  background: var(--switch-off);
   border-radius: 11px;
   cursor: pointer;
   transition: background 0.2s;
@@ -158,7 +199,45 @@ body {
 }
 .switch.on::after { transform: translateX(18px); }
 
-/* 保存按钮 */
+.theme-picks {
+  display: flex;
+}
+
+.theme-chip {
+  padding: 4px 10px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--bg);
+  color: var(--text-secondary);
+  font-size: 12px;
+  cursor: pointer;
+  margin-left: 6px;
+}
+.theme-chip:first-child { margin-left: 0; }
+.theme-chip.on {
+  border-color: var(--primary);
+  background: var(--primary-light);
+  color: var(--primary);
+}
+
+.theme-chip--light.on { border-color: #4285f4; background: #e8f0fe; color: #4285f4; }
+.theme-chip--dark.on { border-color: #6ea8ff; background: #2a3a54; color: #6ea8ff; }
+.theme-chip--warm.on { border-color: #c47a3a; background: #f3e4d4; color: #c47a3a; }
+
+/* 保存按钮：提示占位始终在按钮上方，出现/消失都不挤布局 */
+.save-area {
+  margin-top: 4px;
+}
+
+.toast {
+  height: 18px;
+  margin-bottom: 8px;
+  text-align: center;
+  font-size: 12px;
+  line-height: 18px;
+  color: var(--success);
+}
+
 .save-btn {
   width: 100%;
   padding: 12px;
@@ -168,15 +247,6 @@ body {
   color: #fff;
   font-size: 15px;
   cursor: pointer;
-  margin-top: 4px;
   transition: opacity 0.2s;
 }
 .save-btn:hover { opacity: 0.9; }
-
-.toast {
-  text-align: center;
-  font-size: 12px;
-  color: #34a853;
-  margin-top: 10px;
-  height: 16px;
-}
