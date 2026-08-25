@@ -27,7 +27,7 @@
   "build": {
     "appId": "com.lookfar.app",
     "productName": "远方",
-    "icon": "build/icon.png",
+    "icon": "assets/icon.png",
     "directories": {
       "output": "release"
     },
