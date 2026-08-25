@@ -1,0 +1,73 @@
+{
+  "name": "look-far",
+  "version": "1.0.0",
+  "description": "20-20-20 eye rest reminder",
+  "author": "look-far",
+  "license": "MIT",
+  "main": "dist/main/main.js",
+  "scripts": {
+    "dev": "npm run build && electron .",
+    "build": "tsc -p tsconfig.main.json && vite build",
+    "pack:mac": "npm run build && electron-builder --mac --arm64",
+    "pack:win": "npm run build && electron-builder --win --x64",
+    "pack": "npm run build && electron-builder --mac --arm64 --win --x64"
+  },
+  "dependencies": {
+    "electron-store": "^8.2.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.0",
+    "@vitejs/plugin-vue": "^5.0.0",
+    "electron": "^30.0.0",
+    "electron-builder": "^24.13.3",
+    "typescript": "^5.4.0",
+    "vite": "^5.2.0",
+    "vue": "^3.4.0"
+  },
+  "build": {
+    "appId": "com.lookfar.app",
+    "productName": "远方",
+    "icon": "build/icon.png",
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "dist/**/*",
+      "resources/**/*",
+      "package.json"
+    ],
+    "mac": {
+      "category": "public.app-category.healthcare-fitness",
+      "target": [
+        "dmg",
+        "zip"
+      ],
+      "icon": "build/icon.icns",
+      "artifactName": "${productName}-${version}-mac-${arch}.${ext}"
+    },
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        },
+        {
+          "target": "zip",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "build/icon.ico",
+      "artifactName": "${productName}-${version}-win-${arch}.${ext}"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "shortcutName": "远方",
+      "artifactName": "${productName}-${version}-win-${arch}-setup.${ext}"
+    }
+  }
+}

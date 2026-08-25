@@ -1,0 +1,182 @@
+:root {
+  --bg: #f7f8fa;
+  --card: #ffffff;
+  --text: #333a45;
+  --text-secondary: #8a94a6;
+  --primary: #4285f4;
+  --primary-light: #e8f0fe;
+  --border: #e6e9ef;
+  --radius: 12px;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  font-size: 14px;
+  -webkit-font-smoothing: antialiased;
+  user-select: none;
+}
+
+.app {
+  padding: 20px;
+}
+
+/* 顶部状态区 */
+.status-card {
+  background: var(--card);
+  border-radius: var(--radius);
+  padding: 20px;
+  text-align: center;
+  margin-bottom: 16px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+}
+
+.status-time {
+  font-size: 40px;
+  font-weight: 300;
+  font-variant-numeric: tabular-nums;
+  color: var(--primary);
+  letter-spacing: 1px;
+}
+
+.status-label {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-top: 6px;
+}
+
+.status-actions {
+  display: flex;
+  justify-content: center;
+  margin-top: 14px;
+}
+
+.pause-btn,
+.reset-btn {
+  padding: 8px 22px;
+  border: none;
+  border-radius: 20px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.pause-btn {
+  background: var(--primary-light);
+  color: var(--primary);
+  margin-right: 10px;
+}
+.pause-btn:hover { background: #d7e6fd; }
+.pause-btn.paused { background: #fde8e8; color: #e0453a; }
+
+.reset-btn {
+  background: #f0f2f5;
+  color: var(--text-secondary);
+}
+.reset-btn:hover { background: #e6e9ef; color: var(--text); }
+
+/* 设置分组 */
+.section {
+  background: var(--card);
+  border-radius: var(--radius);
+  padding: 16px 18px;
+  margin-bottom: 12px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+}
+
+.section-title {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-bottom: 12px;
+  letter-spacing: 0.5px;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 0;
+}
+
+.row + .row { border-top: 1px solid var(--border); }
+
+.row-label { flex-shrink: 0; }
+
+/* 数字输入 */
+.num-input {
+  width: 64px;
+  padding: 6px 8px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  text-align: center;
+  font-size: 14px;
+  color: var(--text);
+  background: var(--bg);
+  outline: none;
+}
+.num-input:focus { border-color: var(--primary); }
+
+.unit { color: var(--text-secondary); font-size: 12px; margin-left: 4px; }
+
+/* 时间输入 */
+.time-input {
+  padding: 6px 8px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 13px;
+  color: var(--text);
+  background: var(--bg);
+  outline: none;
+}
+.time-input:focus { border-color: var(--primary); }
+
+.range-sep { color: var(--text-secondary); margin: 0 6px; }
+
+/* 开关 */
+.switch {
+  position: relative;
+  width: 40px;
+  height: 22px;
+  background: #d5dae3;
+  border-radius: 11px;
+  cursor: pointer;
+  transition: background 0.2s;
+  flex-shrink: 0;
+}
+.switch.on { background: var(--primary); }
+.switch::after {
+  content: '';
+  position: absolute;
+  top: 2px; left: 2px;
+  width: 18px; height: 18px;
+  background: #fff;
+  border-radius: 50%;
+  transition: transform 0.2s;
+}
+.switch.on::after { transform: translateX(18px); }
+
+/* 保存按钮 */
+.save-btn {
+  width: 100%;
+  padding: 12px;
+  border: none;
+  border-radius: var(--radius);
+  background: var(--primary);
+  color: #fff;
+  font-size: 15px;
+  cursor: pointer;
+  margin-top: 4px;
+  transition: opacity 0.2s;
+}
+.save-btn:hover { opacity: 0.9; }
+
+.toast {
+  text-align: center;
+  font-size: 12px;
+  color: #34a853;
+  margin-top: 10px;
+  height: 16px;
+}
