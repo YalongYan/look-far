@@ -1,10 +1,13 @@
-import { app, BrowserWindow, Tray, Menu, ipcMain, screen, nativeImage } from 'electron'
+import { app, BrowserWindow, Tray, Menu, ipcMain, screen, nativeImage, Notification } from 'electron'
 import * as path from 'path'
 import * as fs from 'fs'
 import Store from 'electron-store'
 import { Scheduler } from './scheduler'
 import { AppConfig, DEFAULT_CONFIG, normalizeConfig, overlayWindowBg, panelWindowBg } from './config'
-import { createTrayIcon, createWindowsTrayIcon } from './icon'
+import { createTrayIcon } from './icon'
+import { CHIME_DATA_URL } from './chime'
+
+app.commandLine.appendSwitch('autoplay-policy', 'no-user-gesture-required')
 
 const isMac = process.platform === 'darwin'
 
@@ -78,19 +81,12 @@ function resetWork() {
 function updateTrayDisplay(text: string) {
   if (!tray) return
   if (isMac) {
-    // macOS: 图标旁直接显示文字
     tray.setTitle(text === '时段外' || text === '已暂停' || text.includes('饭点') ? text : `👁 ${text}`)
     tray.setToolTip(`远方 · ${text}`)
+  } else if (/^\d+:\d+$/.test(text)) {
+    tray.setToolTip(`远方 · ${text} 后休息`)
   } else {
-    // Windows: 倒计时画进图标 + tooltip
-    if (/^\d+:\d+$/.test(text)) {
-      const minutes = Math.ceil(parseInt(text.split(':')[0], 10))
-      tray.setImage(createWindowsTrayIcon(minutes))
-      tray.setToolTip(`远方 · ${text} 后休息`)
-    } else {
-      tray.setImage(createTrayIcon())
-      tray.setToolTip(`远方 · ${text}`)
-    }
+    tray.setToolTip(`远方 · ${text}`)
   }
 }
 
@@ -113,14 +109,12 @@ function bindSchedulerEvents() {
 function playSound() {
   const config = getConfig()
   if (!config.sound) return
-  // 简单可靠方案：给系统通知音。后续可换自定义音频文件。
   try {
-    const { Notification } = require('electron')
     if (Notification.isSupported()) {
       new Notification({
-        title: '👀 该休息了',
+        title: '该休息了',
         body: '看向 6 米外，放松眼睛',
-        silent: false
+        silent: true
       }).show()
     }
   } catch (e) {
@@ -163,6 +157,7 @@ function openSettings() {
 function openBreakWindows() {
   closeBreakWindows()
   const config = getConfig()
+  let primary = true
   for (const display of screen.getAllDisplays()) {
     const { x, y, width, height } = display.bounds
     const win = new BrowserWindow({
@@ -184,16 +179,20 @@ function openBreakWindows() {
     })
     win.setAlwaysOnTop(true, 'screen-saver')
     win.loadFile(path.join(__dirname, '../renderer/break.html'))
+    const shouldPlaySound = config.sound && primary
     const sendBreakConfig = () => {
       if (win.isDestroyed()) return
       win.webContents.send('break-config', {
         seconds: config.breakSeconds,
-        overlayTheme: config.overlayTheme
+        overlayTheme: config.overlayTheme,
+        playSound: shouldPlaySound,
+        soundDataUrl: shouldPlaySound ? CHIME_DATA_URL : ''
       })
     }
     win.webContents.on('did-finish-load', sendBreakConfig)
     win.webContents.on('did-stop-loading', sendBreakConfig)
     breakWins.push(win)
+    primary = false
   }
 }
 

@@ -36,6 +36,12 @@
       "resources/**/*",
       "package.json"
     ],
+    "extraResources": [
+      {
+        "from": "assets/icon.png",
+        "to": "icon.png"
+      }
+    ],
     "mac": {
       "category": "public.app-category.healthcare-fitness",
       "target": [

@@ -13,6 +13,17 @@ function applyOverlayTheme(theme: ThemeId) {
   document.documentElement.setAttribute('data-overlay', id)
 }
 
+let chimePlayed = false
+function playChime(src?: string) {
+  if (chimePlayed || !src) return
+  chimePlayed = true
+  const audio = new Audio(src)
+  audio.volume = 0.8
+  audio.play().catch(() => {
+    chimePlayed = false
+  })
+}
+
 const App = {
   data() {
     return {
@@ -40,8 +51,14 @@ const App = {
     applyOverlayTheme('dark')
     this.startCountdown()
 
-    const apply = (payload: { seconds?: number; overlayTheme?: ThemeId }) => {
+    const apply = (payload: {
+      seconds?: number
+      overlayTheme?: ThemeId
+      playSound?: boolean
+      soundDataUrl?: string
+    }) => {
       if (payload.overlayTheme) applyOverlayTheme(payload.overlayTheme)
+      if (payload.playSound && payload.soundDataUrl) playChime(payload.soundDataUrl)
       const n = Math.max(1, Number(payload.seconds) || 20)
       if (n === this.seconds) return
       this.seconds = n
@@ -49,7 +66,12 @@ const App = {
       this.startCountdown()
     }
 
-    window.eyeApi?.onBreakConfig((c: { seconds: number; overlayTheme?: ThemeId }) => apply(c))
+    window.eyeApi?.onBreakConfig((c: {
+      seconds: number
+      overlayTheme?: ThemeId
+      playSound?: boolean
+      soundDataUrl?: string
+    }) => apply(c))
 
     try {
       const config = await window.eyeApi?.getConfig()
