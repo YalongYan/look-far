@@ -64,10 +64,10 @@ yarn run pack:win   # Windows
 
 | 系统 | 文件 |
 | --- | --- |
-| macOS（Apple 芯片，M1/M2/M3/M4） | `release/远方-1.0.0-mac-arm64.dmg` |
-| macOS（Intel） | `release/远方-1.0.0-mac-x64.dmg` |
-| Windows x64 | `release/远方-1.0.0-win-x64-setup.exe` |
-| Windows ARM | `release/远方-1.0.0-win-arm64-setup.exe` |
+| macOS（Apple 芯片，M1/M2/M3/M4） | `release/远方-1.0.1-mac-arm64.dmg` |
+| macOS（Intel） | `release/远方-1.0.1-mac-x64.dmg` |
+| Windows x64 | `release/远方-1.0.1-win-x64-setup.exe` |
+| Windows ARM | `release/远方-1.0.1-win-arm64-setup.exe` |
 
 **Mac：** 打开 DMG，把「远方」拖进「应用程序」。若提示无法验证开发者，按住 Control 点图标 → 打开 → 仍要打开。
 

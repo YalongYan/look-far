@@ -1,6 +1,6 @@
 {
   "name": "look-far",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "20-20-20 eye rest reminder",
   "author": "look-far",
   "license": "MIT",
@@ -8,9 +8,10 @@
   "scripts": {
     "dev": "npm run build && electron .",
     "build": "tsc -p tsconfig.main.json && vite build",
-    "pack:mac": "npm run build && electron-builder --mac --arm64",
-    "pack:win": "npm run build && electron-builder --win --x64",
-    "pack": "npm run build && electron-builder --mac --arm64 --win --x64"
+    "clean:release": "node -e \"require('fs').rmSync('release',{recursive:true,force:true})\"",
+    "pack:mac": "npm run clean:release && npm run build && electron-builder --mac --arm64",
+    "pack:win": "npm run clean:release && npm run build && electron-builder --win --x64",
+    "pack": "npm run clean:release && npm run build && electron-builder --mac --arm64 --win --x64"
   },
   "dependencies": {
     "electron-store": "^8.2.0"
