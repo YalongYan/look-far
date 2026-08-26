@@ -35,8 +35,14 @@ export class Scheduler extends EventEmitter {
   updateConfig(config: AppConfig) {
     const workChanged = config.workMinutes !== this.config.workMinutes
     this.config = config
-    if (workChanged && this.state === 'working') {
-      this.remaining = Math.min(this.remaining, config.workMinutes * 60)
+    if (workChanged && this.state !== 'breaking') {
+      this.remaining = Math.max(1, config.workMinutes * 60)
+      if (this.state === 'idle' && !this.paused) {
+        this.state = 'working'
+      }
+      this.emitChange()
+      this.emitTray(this.paused ? '已暂停' : this.formatRemaining(this.remaining))
+      return
     }
     this.tick()
   }

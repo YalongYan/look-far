@@ -94,6 +94,9 @@ const App = {
       this.config.workMinutes = Math.min(120, Math.max(1, Number(this.config.workMinutes) || 20))
       this.config.breakSeconds = Math.min(600, Math.max(5, Number(this.config.breakSeconds) || 20))
       await window.eyeApi.saveConfig(JSON.parse(JSON.stringify(this.config)))
+      const s = await window.eyeApi.getState()
+      this.state = s
+      this.localRemaining = s.remaining
       this.showToast('✓ 已保存')
     },
     setPanelTheme(id: ThemeId) {
